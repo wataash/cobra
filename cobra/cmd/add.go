@@ -23,6 +23,7 @@ import (
 )
 
 func init() {
+	// rootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringVarP(&packageName, "package", "t", "", "target package name (e.g. github.com/spf13/hugo)")
 	addCmd.Flags().StringVarP(&parentName, "parent", "p", "rootCmd", "variable name of parent command for this command")
 }
@@ -30,7 +31,9 @@ func init() {
 var packageName, parentName string
 
 var addCmd = &cobra.Command{
-	Use:     "add [command name]",
+	// Use:     "add [command name]",
+	// Use: "", // add -> Error: unknown command "add" for "cobra" (see (*Command).Name())
+	Use:     "add <command name>",
 	Aliases: []string{"command"},
 	Short:   "Add a command to a Cobra Application",
 	Long: `Add (cobra add) will create a new command, with a license and
@@ -41,9 +44,11 @@ If you want your command to be public, pass in the command name
 with an initial uppercase letter.
 
 Example: cobra add server -> resulting in a new cmd/server.go`,
+	Args: cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
+			// how to show this message with ExactArgs?
 			er("add needs a name for the command")
 		}
 

@@ -963,7 +963,7 @@ Simply type ` + c.Name() + ` help [path to command] for full details.`,
 			},
 		}
 	}
-	c.RemoveCommand(c.helpCommand)
+	c.RemoveCommand(c.helpCommand) // when does c.helpCommand in c.commands?
 	c.AddCommand(c.helpCommand)
 }
 
@@ -1001,9 +1001,12 @@ func (c *Command) AddCommand(cmds ...*Command) {
 		cmds[i].parent = c
 		// update max lengths
 		usageLen := len(x.Use)
+		// rootCmd.commandsMaxUseLen == 0 at first
 		if usageLen > c.commandsMaxUseLen {
 			c.commandsMaxUseLen = usageLen
 		}
+		
+		// "cobra add"
 		commandPathLen := len(x.CommandPath())
 		if commandPathLen > c.commandsMaxCommandPathLen {
 			c.commandsMaxCommandPathLen = commandPathLen
@@ -1021,8 +1024,34 @@ func (c *Command) AddCommand(cmds ...*Command) {
 	}
 }
 
+func (c *Command) removeCmd(cmd *Command) {
+	idx := -1
+
+	for i, command := range c.commands {
+		if command == cmd {
+			idx = i
+		}
+	}
+
+	if idx == -1 {
+		return
+	}
+
+	cmd.parent = nil
+	// not needed? TODO: refcount, gc
+	// cmd.commands = nil
+
+	// O(c.commands)?
+	c.commands = append(c.commands[:idx], c.commands[idx+1:]...)
+	// reduce cap
+	newCommands := make([]*Command, len(c.commands))
+	copy(c.commands, newCommands)
+}
+
 // RemoveCommand removes one or more commands from a parent command.
 func (c *Command) RemoveCommand(cmds ...*Command) {
+// O(c.commands cmds)
+/*
 	commands := []*Command{}
 main:
 	for _, command := range c.commands {
@@ -1035,6 +1064,12 @@ main:
 		commands = append(commands, command)
 	}
 	c.commands = commands
+*/
+	// O(cmds)
+	for _, cmd := range cmds {
+		// O(c.commands)
+		c.removeCmd(cmd)
+	}
 	// recompute all lengths
 	c.commandsMaxUseLen = 0
 	c.commandsMaxCommandPathLen = 0

@@ -6,10 +6,13 @@ import (
 
 type PositionalArgs func(cmd *Command, args []string) error
 
+// c.f. (*Command).ValidateArgs
+
 // Legacy arg validation has the following behaviour:
 // - root commands with no subcommands can take arbitrary arguments
 // - root commands with subcommands will do subcommand validity checking
 // - subcommands will always accept arbitrary arguments
+// used when Args == nil
 func legacyArgs(cmd *Command, args []string) error {
 	// no subcommand, always take args
 	if !cmd.HasSubCommands() {

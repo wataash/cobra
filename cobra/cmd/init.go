@@ -72,6 +72,11 @@ Add commands to it by running `+"`cobra add [cmdname]`.")
 	},
 }
 
+func init() {
+	// rootCmd.AddCommand(initCmd)
+	fmt.Print("") // breakpoint
+}
+
 func initializeProject(project *Project) {
 	if !exists(project.AbsPath()) { // If path doesn't yet exist, create it
 		err := os.MkdirAll(project.AbsPath(), os.ModePerm)

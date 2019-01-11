@@ -68,7 +68,8 @@ func getLicense() License {
 
 	// If user wants to have built-in license, use that.
 	if viper.IsSet("license") {
-		return findLicense(viper.GetString("license"))
+		s := viper.GetString("license")
+		return findLicense(s)
 	}
 
 	// If user didn't set any license, use Apache 2.0 by default.
